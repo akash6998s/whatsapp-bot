@@ -5,7 +5,11 @@ const express = require('express');
 
 // Initialize WhatsApp client
 const client = new Client({
-    authStrategy: new LocalAuth()
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+        headless: true, // Ensure it's running in headless mode
+        args: ['--no-sandbox', '--disable-setuid-sandbox'] // Required for some environments like Render
+    }
 });
 
 // Generate QR code for WhatsApp login
