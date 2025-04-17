@@ -1,22 +1,26 @@
 const qrcode = require('qrcode-terminal');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const cron = require('node-cron');
+const express = require('express');
 
+// Initialize WhatsApp client
 const client = new Client({
     authStrategy: new LocalAuth()
 });
 
+// Generate QR code for WhatsApp login
 client.on('qr', (qr) => {
     qrcode.generate(qr, { small: true });
 });
 
+// Once WhatsApp is ready
 client.on('ready', () => {
     console.log('WhatsApp is ready!');
 
-    // Schedule the message at 9:00 AM every day
-    cron.schedule('36 23 * * *', async () => {
-        const groupName = 'Phoenix'; // Change this
-        const message = '🌞 Daily Reminder: Always stay grounded and serve selflessly 🙏';
+    // Schedule the message at 11:30 PM every day
+    cron.schedule('30 23 * * *', async () => {
+        const groupName = 'Phoenix'; // Replace with your group name
+        const message = '🌙 Night Reminder: Always stay grounded and serve selflessly 🙏';
 
         const chats = await client.getChats();
         const group = chats.find(chat => chat.isGroup && chat.name === groupName);
@@ -31,3 +35,9 @@ client.on('ready', () => {
 });
 
 client.initialize();
+
+// Express fallback for Render deployment
+const app = express();
+const PORT = process.env.PORT || 3000;
+app.get('/', (req, res) => res.send('Bot is running!'));
+app.listen(PORT, () => console.log(`Listening on ${PORT}`));

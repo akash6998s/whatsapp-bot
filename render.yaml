@@ -1,5 +1,5 @@
 services:
-  - type: worker   # 👈 Changed from 'web' to 'worker'
+  - type: web
     name: mychat-bot
     env: node
     plan: free
