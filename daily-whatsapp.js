@@ -40,7 +40,7 @@ client.on('ready', () => {
     console.log('WhatsApp is ready!');
 
     // Schedule the message at 1:00 AM daily
-    cron.schedule('0 1 * * *', async () => {
+    cron.schedule('* * * * *', async () => {
         const groupName = 'Phoenix';
         const index = getCurrentIndex();
         const message = suvicharList[index] || '🙏 जय श्री राम!';
