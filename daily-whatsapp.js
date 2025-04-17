@@ -28,7 +28,7 @@ client.on('ready', () => {
     console.log('✅ WhatsApp is ready!');
 
     // Schedule the message at 12:43 AM every day
-    cron.schedule('* * * * *', async () => {
+    cron.schedule('30 19 * * *', async () => {
         console.log('⏰ Cron job triggered');
         const groupName = 'Phoenix'; // Replace with exact group name
         const message = '🌙 Night Reminder: Always stay grounded and serve selflessly 🙏';
