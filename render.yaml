@@ -1,10 +1,7 @@
 services:
-  - type: web
+  - type: worker   # 👈 Changed from 'web' to 'worker'
     name: mychat-bot
     env: node
     plan: free
     buildCommand: npm install
     startCommand: node daily-whatsapp.js
-    envVars:
-      - key: NODE_VERSION
-        value: 18
