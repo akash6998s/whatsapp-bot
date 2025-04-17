@@ -41,22 +41,22 @@ client.on('ready', () => {
 
     // Schedule the message at 1:00 AM daily
     cron.schedule('* * * * *', async () => {
+        console.log('⏰ Cron job triggered');
+    
         const groupName = 'Phoenix';
-        const index = getCurrentIndex();
-        const message = suvicharList[index] || '🙏 जय श्री राम!';
-
+        const message = '🌙 Night Reminder: Always stay grounded and serve selflessly 🙏';
+    
         const chats = await client.getChats();
         const group = chats.find(chat => chat.isGroup && chat.name === groupName);
-
+    
         if (group) {
             await client.sendMessage(group.id._serialized, message);
-            console.log(`✅ Sent Suvichar #${index + 1}:`, message);
-            const nextIndex = (index + 1) % suvicharList.length;
-            updateIndex(nextIndex);
+            console.log('✅ Message sent to:', groupName);
         } else {
             console.log('❌ Group not found');
         }
     });
+    
 });
 
 client.initialize();
