@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: mychat-bot
+    name: auto-chat
     env: node
     plan: free
     buildCommand: npm install
