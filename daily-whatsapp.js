@@ -3,6 +3,8 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const cron = require('node-cron');
 const express = require('express');
 const fs = require('fs');
+const puppeteer = require('puppeteer'); // Add this
+
 
 // Load Suvichar list
 const suvicharList = require('./suvichar.json');
@@ -20,10 +22,12 @@ if (fs.existsSync(counterPath)) {
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        headless: false, // Set to false to see QR code popup
+        headless: true,
+        executablePath: puppeteer.executablePath(), // Use Chromium bundled with puppeteer
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     }
 });
+
 
 // Show QR code
 client.on('qr', (qr) => {
