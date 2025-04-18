@@ -4,54 +4,70 @@ const cron = require('node-cron');
 const express = require('express');
 const fs = require('fs');
 
-// Load Suvichar data from JSON file
-const suvichar = JSON.parse(fs.readFileSync('suvichar.json', 'utf8'));
+// Load Suvichar list
+const suvicharList = require('./suvichar.json');
+const counterPath = './counter.json';
+
+let currentIndex = 0;
+
+// Read current index from counter.json
+if (fs.existsSync(counterPath)) {
+    const data = fs.readFileSync(counterPath);
+    currentIndex = JSON.parse(data).index || 0;
+}
 
 // Initialize WhatsApp client
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        headless: true, // Ensure it's running in headless mode
-        args: ['--no-sandbox', '--disable-setuid-sandbox'] // Required for some environments like Render
+        headless: false, // Set to false to see QR code popup
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
     }
 });
 
-// Generate QR code for WhatsApp login
+// Show QR code
 client.on('qr', (qr) => {
     qrcode.generate(qr, { small: true });
 });
 
 // Once WhatsApp is ready
 client.on('ready', () => {
-    console.log('WhatsApp is ready!');
+    console.log('✅ WhatsApp is ready!');
 
-    // Variable to keep track of the current Suvichar index
-    let suvicharIndex = 0;
-
-    // Schedule the message to send every minute for testing purposes
+    // Run every minute (for testing)
     cron.schedule('* * * * *', async () => {
         const groupName = 'Phoenix'; // Replace with your group name
-        const message = suvichar[suvicharIndex]; // Get the current Suvichar message
-
-        // Get all chats and find the desired group
         const chats = await client.getChats();
         const group = chats.find(chat => chat.isGroup && chat.name === groupName);
 
-        if (group) {
-            await client.sendMessage(group.id._serialized, message);
-            console.log(`✅ Sent Suvichar #${suvicharIndex + 1}:`, message);
+        if (!group) {
+            console.log('❌ Group not found:', groupName);
+            return;
+        }
 
-            // Increment the index, reset to 0 if it exceeds the length of the array
-            suvicharIndex = (suvicharIndex + 1) % suvichar.length;
-        } else {
-            console.log('❌ Group not found');
+        if (currentIndex >= suvicharList.length) {
+            console.log('🎉 All suvichars sent!');
+            return;
+        }
+
+        const message = `आज का सुविचार\n\n"${suvicharList[currentIndex]}"\n\n— जय श्री गुरुदेव`;
+
+        try {
+            await client.sendMessage(group.id._serialized, message);
+            console.log(`✅ Sent Suvichar #${currentIndex + 1}: ${suvicharList[currentIndex]}`);
+            currentIndex++;
+
+            // Save updated index
+            fs.writeFileSync(counterPath, JSON.stringify({ index: currentIndex }));
+        } catch (err) {
+            console.error('❌ Failed to send message:', err.message);
         }
     });
 });
 
 client.initialize();
 
-// Express fallback for Render deployment
+// Render-friendly Express setup
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('Bot is running!'));
